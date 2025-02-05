@@ -52,7 +52,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@canboat/pgns": "^2.0.0",
-    "bit-buffer": "^1.0.0",
+    "bit-buffer": "latest",
     "date-fns": "^2.30.0",
     "debug": "^4.3.4",
     "dnssd": "^0.5.0",
