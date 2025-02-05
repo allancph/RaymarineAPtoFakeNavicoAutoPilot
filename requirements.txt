@@ -1,0 +1,7 @@
+debug
+canboatjs
+./canboatjs/lib/canbus
+./canboatjs/lib/candevice
+./canboatjs/lib/utilities
+./device/AC12.js  # Or other device file if needed
+serialport
