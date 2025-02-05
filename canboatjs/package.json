@@ -1,6 +1,6 @@
 {
   "name": "@canboat/canboatjs",
-  "version": "2.11.2", 
+  "version": "2.11.3", 
   "description": "Native javascript version of canboat",
   "main": "index.js",
   "type": "module",
@@ -51,30 +51,30 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "@canboat/pgns": "^2.0.0",
+    "@canboat/pgns": "latest",
     "bit-buffer": "latest",
-    "date-fns": "^2.30.0",
-    "debug": "^4.3.4",
-    "dnssd": "^0.5.0",
-    "int64-buffer": "^0.1.11",
-    "lodash": "^4.17.21",
-    "mqtt": "^4.3.7",
-    "split": "^1.0.1"
+    "date-fns": "latest",
+    "debug": "latest",
+    "dnssd": "latest",
+    "int64-buffer": "latest",
+    "lodash": "latest",
+    "mqtt": "latest",
+    "split": "latest"
   },
   "devDependencies": {
-    "@signalk/github-create-release": "^1.1.0",
-    "chai": "^4.3.7",
+    "@signalk/github-create-release": "latest",
+    "chai": "latest",
     "chai-json-equal": "latest",
-    "chai-string": "latest", 
-    "chai-things": "^0.2.1",
-    "jest": "^29.6.0",
-    "mocha": "^10.2.0",
-    "moment": "^2.29.4",
-    "typescript": "^5.0.0"
+    "chai-string": "latest",
+    "chai-things": "latest",
+    "jest": "latest",
+    "mocha": "latest",
+    "moment": "latest",
+    "typescript": "latest"
   },
   "optionalDependencies": {
-    "serialport": "^12.0.0",
-    "socketcan": "^4.0.0"
+    "serialport": "latest",
+    "socketcan": "latest"
   },
   "repository": {
     "type": "git",
