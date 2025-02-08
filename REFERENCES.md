@@ -14,6 +14,19 @@ This project is designed to emulate marine devices using the CAN Boat protocol. 
 
 ### emulate.js
 
+### System Overview
+
+- **Hardware**: Raspberry Pi 5 with MacArthur HAT
+- **Software**: OpenPlotter, SignalK
+- **Purpose**: Emulate a Simrad AC12 autopilot system that can interact with Raymarine autopilot commands
+
+### Project Structure
+
+```plaintext
+/home/allan/RaymarineAPtoFakeNavicoAutoPilot/
+
+```
+
 The `emulate.js` file is responsible for initializing and emulating the device. It loads device-specific initialization information and sets up the default PGNs to transmit.
 
 #### Key Sections
