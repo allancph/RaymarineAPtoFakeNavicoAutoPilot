@@ -362,3 +362,23 @@ class CANBus extends EventEmitter {
     // ...existing code...
   }
 }
+
+const bus = new CANBus({
+  messageTimeout: 3000,  // 3 second timeout
+  maxQueueSize: 2000    // Allow more queued messages
+})
+
+bus.on('warning', msg => console.warn(msg))
+bus.on('error', err => console.error(err))
+bus.on('fastPacketComplete', packet => {
+  // Process completed fast packet
+})
+
+process.on('SIGINT', () => {
+  bus.destroy()
+  process.exit()
+})
+
+setInterval(() => {
+  debug('CAN bus stats:', bus.getStats())
+}, 60000)
