@@ -22,25 +22,8 @@ const _ = require('lodash')
 const { pgns } = require('./pgns')
 const BitStream = require('bit-buffer').BitStream
 const BitView = require('bit-buffer').BitView
-const Int64LE = require('int64-buffer').Int64LE
-const Uint64LE = require('int64-buffer').Uint64LE
-const { parse: parseDate } = require('date-fns')
 
-const { getPGNFromCanId } = require('./utilities')
-const { getIndustryName, getManufacturerName } = require('./codes')
-const { parseCanId } = require('./canId')
-const { parseN2kString, parseYDRAW, isN2KOver0183, parseN2KOver0183 } = require('./stringMsg')
-
-var fieldTypeReaders = {}
-var fieldTypePostProcessors = {}
-
-const timeUnitsPerSecond = 10000
-const maxUint64 = new Int64LE(0xffffffff, 0xffffffff)
-const maxInt64 = new Int64LE(0x7fffffff, 0xffffffff)
-
-const FORMAT_PLAIN = 0
-const FORMAT_FAST  = 1
-
+// Constants for fast packet handling
 const FASTPACKET_INDEX = 0
 const FASTPACKET_SIZE = 1
 const FASTPACKET_BUCKET_0_SIZE = 6
@@ -50,26 +33,24 @@ const FASTPACKET_BUCKET_N_OFFSET = 1
 const FASTPACKET_MAX_INDEX = 0x1f
 const FASTPACKET_MAX_SIZE = (FASTPACKET_BUCKET_0_SIZE + FASTPACKET_BUCKET_N_SIZE * (FASTPACKET_MAX_INDEX - 1))
 
-
-//we can't handle these, so ignore them
-const ignoredPgns = []//130820, 126720 ]
+// Ignored PGNs - we can't handle these
+const IGNORED_PGNS = []
 
 class Parser extends EventEmitter {
-  constructor (opts) {
+  constructor(opts = {}) {
     super()
-    this.options = _.isUndefined(opts) ? {} : opts
-
+    this.options = opts
     this.name = pkg.name
     this.version = pkg.version
     this.author = pkg.author
     this.license = pkg.license
-    this.format = _.isUndefined(this.options.format) ? -1 : this.options.format
+    this.format = opts.format ?? -1
     this.devices = {}
-    this.mixedFormat = this.options.mixedFormat || false
+    this.mixedFormat = opts.mixedFormat || false
   }
 
   _parse(pgn, bs, len, cb) {
-    if ( ignoredPgns.indexOf(pgn.pgn) != -1 ) {
+    if ( IGNORED_PGNS.indexOf(pgn.pgn) != -1 ) {
       this.emit('warning', pgn, 'ignoring pgn')
       return  undefined
     }

@@ -1,19 +1,30 @@
+// Import the debug library for logging
 const debug = require('debug')('emulate')
 
-var myArgs = process.argv.slice(2);
-const emulate = myArgs[0] || 'AC12'
-const emulate_init = './device/' + emulate + '.js'
+// Constants
+const DEFAULT_DEVICE = 'AC12'
+const DEVICE_PATH_PREFIX = './device/'
 
-// Load device specific init info
-debug('Loading %s', emulate_init)
-require(emulate_init)
-const defaultTransmitPGNs = require(emulate_init).defaultTransmitPGNs
+// Get command-line arguments
+const myArgs = process.argv.slice(2)
+
+// Set the device to emulate, defaulting to 'AC12' if not provided
+const emulate = myArgs[0] || DEFAULT_DEVICE
+const emulateInitPath = `${DEVICE_PATH_PREFIX}${emulate}.js`
+
+// Load device-specific initialization information
+debug('Loading %s', emulateInitPath)
+const emulateInit = require(emulateInitPath)
+
+// Get the default PGNs to transmit from the device-specific file
+const defaultTransmitPGNs = emulateInit.defaultTransmitPGNs
 module.exports.defaultTransmitPGNs = defaultTransmitPGNs
 
-const deviceAddress = myArgs[1];
-//  const deviceAddress = require(emulate_init).deviceAddress;
-module.exports.deviceAddress = deviceAddress;
+// Get the device address from command-line arguments or the device-specific file
+const deviceAddress = myArgs[1] || emulateInit.deviceAddress
+module.exports.deviceAddress = deviceAddress
 
+// Log the device address for debugging purposes
 debug('deviceAddress: %j', deviceAddress)
 
 require('./canboatjs')
@@ -257,22 +268,21 @@ function degsToRad(degrees) {
   return degrees * (Math.PI/180.0);
 }
 
-function padd(n, p, c)
-{
-  var pad_char = typeof c !== 'undefined' ? c : '0';
-  var pad = new Array(1 + p).join(pad_char);
+// Function to pad a string with leading characters
+const padd = (n, p, c = '0') => {
+  const pad = new Array(1 + p).join(c);
   return (pad + n).slice(-pad.length);
 }
 
-// Sleep
+// Sleep function
 const sleep = (milliseconds) => {
-  return new Promise(resolve => setTimeout(resolve, milliseconds))
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
 // Heartbeat PGN 126993
-const hexByte = require('./canboatjs/lib/utilities').hexByte
-const heartbeat_msg = "%s,7,126993,%s,255,8,60,ea,%s,ff,ff,ff,ff,ff"
-var heartbeatSequencenumber = 0
+const hexByte = require('./canboatjs/lib/utilities').hexByte;
+const heartbeat_msg = "%s,7,126993,%s,255,8,60,ea,%s,ff,ff,ff,ff,ff";
+let heartbeatSequencenumber = 0;
 
 function heartbeat () {
   heartbeatSequencenumber++
@@ -337,7 +347,7 @@ function AC12_PGN65341 () {
       wind_target_deg = wind_apparent_deg
     }
     wind_target_rad = Math.trunc(degsToRad(wind_target_deg) * 10000)
-    wind_target_hex = padd((wind_target_rad & 0xff).toString(16), 2) + "," + padd(((wind_target_rad >> 8) & 0xff).toString(16), 2)
+    wind_target_hex = padd((wind_target_rad & 0xff).toString(16), 2) + padd(((wind_target_rad >> 8) & 0xff).toString(16), 2)
     // debug ("wind_target_hex: %s wind_deg: %s", wind_target_hex, wind_target_deg);
     // B&G Wind target PGN
     const message = "%s,6,65341,%s,255,8,41,9f,ff,ff,03,ff,%s"
