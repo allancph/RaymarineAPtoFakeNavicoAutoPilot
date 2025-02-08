@@ -282,5 +282,47 @@ function getISOAddressClaimAsUint64(pgn) {
   return new Uint64LE(toPgn(pgn))
 }
 
+class CANDevice extends EventEmitter {
+  constructor(options = {}) {
+    super()
+    this.options = options
+    this.address = options.address || 0
+    this.deviceName = options.deviceName || 'Unknown Device'
+    this.productCode = options.productCode || 0
+    this.deviceFunction = options.deviceFunction || 0
+    this.uniqueNumber = options.uniqueNumber || 0
+    this.manufacturerCode = options.manufacturerCode || 0
+    this.lastSeen = Date.now()
+    this.status = 'initializing'
+  }
+
+  updateStatus(newStatus) {
+    if (this.status !== newStatus) {
+      this.status = newStatus
+      this.emit('status', this.status)
+    }
+  }
+
+  isActive() {
+    const now = Date.now()
+    const timeout = this.options.deviceTimeout || 60000 // 1 minute
+    return (now - this.lastSeen) < timeout
+  }
+
+  getDeviceInfo() {
+    return {
+      address: this.address,
+      name: this.deviceName,
+      productCode: this.productCode,
+      function: this.deviceFunction,
+      uniqueNumber: this.uniqueNumber,
+      manufacturer: this.manufacturerCode,
+      status: this.status,
+      lastSeen: this.lastSeen
+    }
+  }
+}
+
 module.exports = CanDevice
 module.exports.sendPGNList = sendPGNList
+module.exports.CANDevice = CANDevice

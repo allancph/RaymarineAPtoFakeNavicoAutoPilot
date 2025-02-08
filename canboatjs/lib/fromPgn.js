@@ -347,6 +347,27 @@ class Parser extends EventEmitter {
     }
   }
 
+  validatePgn(pgn) {
+    if (pgn < 0 || pgn > 262143) {
+      throw new Error(`Invalid PGN: ${pgn}. Must be between 0 and 262143`)
+    }
+    return true
+  }
+
+  handleFastPacket(packet) {
+    const { pgn, timestamp, data } = packet
+    const key = `${pgn}-${data[FAST_PACKET.INDEX]}`
+    
+    if (!this.pendingFastPackets.has(key)) {
+      this.pendingFastPackets.set(key, {
+        timestamp,
+        data: new Array(FAST_PACKET_MAX_SIZE),
+        size: data[FAST_PACKET.SIZE],
+        receivedPackets: new Set()
+      })
+    }
+  }
+
 }
 
 function getField(pgn, index) {

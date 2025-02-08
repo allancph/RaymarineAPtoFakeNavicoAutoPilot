@@ -27,6 +27,7 @@ const spawn = require('child_process').spawn
 const { getPlainPGNs } = require('./utilities')
 const { encodeCanId, parseCanId } = require('./canId')
 const { toActisenseSerialFormat, parseActisense } = require('./stringMsg')
+const EventEmitter = require('events')
 
 const MSG_BUF_SIZE  			= 2000
 const CANDUMP_DATA_INC_3		= 3
@@ -311,3 +312,53 @@ CanbusStream.prototype.pipe = function (pipeTo) {
 
 
 module.exports = CanbusStream
+
+class CANBus extends EventEmitter {
+  constructor(options) {
+    super()
+    this.options = options || {}
+    this.retryCount = 0
+    this.maxRetries = this.options.maxRetries || 3
+    this.reconnectDelay = this.options.reconnectDelay || 1000
+    this.pendingMessages = new Map()
+  }
+
+  async handleBusError(error) {
+    debug('CAN bus error:', error)
+    
+    if (this.retryCount < this.maxRetries) {
+      this.retryCount++
+      debug(`Attempting reconnection (${this.retryCount}/${this.maxRetries})`)
+      
+      try {
+        await this.disconnect()
+        await new Promise(resolve => setTimeout(resolve, this.reconnectDelay))
+        await this.connect()
+        this.retryCount = 0
+      } catch (err) {
+        debug('Reconnection failed:', err)
+        this.emit('error', err)
+      }
+    } else {
+      this.emit('fatal', new Error('Max retry attempts reached'))
+    }
+  }
+
+  processFastPacket(buffer, length) {
+    const id = buffer.readUInt32BE(0)
+    const frameIndex = buffer[FAST_PACKET.INDEX]
+    const key = `${id}-${frameIndex}`
+
+    if (!this.pendingMessages.has(key)) {
+      this.pendingMessages.set(key, {
+        timestamp: Date.now(),
+        data: Buffer.alloc(FAST_PACKET_MAX_SIZE),
+        size: buffer[FAST_PACKET.SIZE],
+        receivedFrames: new Set()
+      })
+    }
+
+    // Process packet data and emit when complete
+    // ...existing code...
+  }
+}
